@@ -311,7 +311,7 @@ def main():
             out.append("|---|---|---|---|---|---|---|---|---|")
             for c in autos:
                 cc = c.get("contato") or {}
-                out.append(f"| `{c['id']}` | {c.get('vencimento')} | {c.get('competencia')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {fp_name(c)} | {cc.get('id')} | {r(c.get('historico'))[:120]} |")
+                out.append(f"| `{c['id']}` | {c.get('vencimento')} | {c.get('competencia')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {fp_name(c)} | {cc.get('id')} | {r(c.get('historico'))} |")
             out.append("")
         if nfcs:
             out.append(f"#### De Nota Fiscal (origem `notafiscal`) ({len(nfcs)})")
@@ -320,7 +320,7 @@ def main():
             out.append("|---|---|---|---|---|---|---|---|")
             for c in nfcs:
                 nfnum = ((c.get("origem") or {}).get("numero") or "")
-                out.append(f"| `{c['id']}` | {nfnum} | {c.get('vencimento')} | {c.get('competencia')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {r(c.get('historico'))[:130]} |")
+                out.append(f"| `{c['id']}` | {nfnum} | {c.get('vencimento')} | {c.get('competencia')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {r(c.get('historico'))} |")
             out.append("")
         if mans:
             out.append(f"#### Manuais (sem origem) ({len(mans)})")
@@ -329,7 +329,7 @@ def main():
             out.append("|---|---|---|---|---|---|---|---|---|")
             for c in sorted(mans, key=lambda x: x.get("vencimento") or ""):
                 cc = c.get("contato") or {}
-                out.append(f"| `{c['id']}` | {c.get('vencimento')} | {c.get('competencia')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {fp_name(c)} | {cc.get('id')} | {r(c.get('historico'))[:120]} |")
+                out.append(f"| `{c['id']}` | {c.get('vencimento')} | {c.get('competencia')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {fp_name(c)} | {cc.get('id')} | {r(c.get('historico'))} |")
             out.append("")
         # divergencias
         if autos and mans:
@@ -391,7 +391,7 @@ def main():
     out2.append("| CAR | venc | valor | situação | categoria | forma | histórico |")
     out2.append("|---|---|---|---|---|---|---|")
     for c in sorted(no_pv, key=lambda x: x.get("vencimento") or ""):
-        out2.append(f"| `{c['id']}` | {c.get('vencimento')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {fp_name(c)} | {r(c.get('historico'))[:130]} |")
+        out2.append(f"| `{c['id']}` | {c.get('vencimento')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {fp_name(c)} | {r(c.get('historico'))} |")
     out2.append("")
     out2.append("## 2. CARs de Nota Fiscal restantes")
     out2.append("")
@@ -400,7 +400,7 @@ def main():
         out2.append("|---|---|---|---|---|---|---|")
         for c in nf_cars:
             nfnum = ((c.get("origem") or {}).get("numero") or "")
-            out2.append(f"| `{c['id']}` | {nfnum} | {c.get('vencimento')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {r(c.get('historico'))[:130]} |")
+            out2.append(f"| `{c['id']}` | {nfnum} | {c.get('vencimento')} | {fmt(c.get('valor'))} | {fmt_situ(c)} | {cat_name(c)} | {r(c.get('historico'))} |")
         out2.append("")
     else:
         out2.append("_Nenhuma._")
