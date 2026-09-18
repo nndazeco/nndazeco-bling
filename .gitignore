@@ -1,0 +1,35 @@
+# ---- Segredos / credenciais (NUNCA comitar) ----
+.env
+.env.*
+!.env.example
+tokens.json
+*.token
+client_secret*.json
+
+# ---- Contexto local / temporário (não comitar, exceto o README) ----
+_context/*
+!_context/README.md
+
+# ---- Dados reais de clientes / snapshots da conta ----
+data/
+backups/
+
+# ---- Relatórios gerados (contêm dados reais) ----
+report_*.md
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# ---- Editores / SO ----
+.idea/
+.vscode/
+.DS_Store
