@@ -40,6 +40,40 @@ def car_put_body(car, historico=None):
     }
 
 
+def erro_84(body):
+    """True se o erro do PUT for 'forma de pagamento inativa' (code 84)."""
+    fields = ((body or {}).get("error") or {}).get("fields") or []
+    return any(f.get("code") == 84 for f in fields)
+
+
+def set_forma_situacao(client, fid, situacao):
+    _, d = client.get(f"/formas-pagamentos/{fid}")
+    body = dict(d["data"])
+    body["situacao"] = situacao
+    body.pop("id", None)
+    return client.request("PUT", f"/formas-pagamentos/{fid}", body=body)
+
+
+def put_car(client, car, historico, sleep=0.4):
+    """PUT de CAR; se erro 84 (forma inativa), reativa a forma, refaz e restaura a situação."""
+    import time as _time
+
+    path = f"/contas/receber/{car['id']}"
+    st, body = client.request("PUT", path, body=car_put_body(car, historico))
+    if st == 400 and erro_84(body):
+        fid = (car.get("formaPagamento") or {}).get("id")
+        _, d = client.get(f"/formas-pagamentos/{fid}")
+        orig = d["data"].get("situacao")
+        set_forma_situacao(client, fid, 1)
+        _time.sleep(sleep)
+        try:
+            st, body = client.request("PUT", path, body=car_put_body(car, historico))
+        finally:
+            set_forma_situacao(client, fid, orig)
+            _time.sleep(sleep)
+    return st, body
+
+
 def find_pv_number(hist, pv_numbers):
     """Acha o número de PV (20NNNNN/20NNNNNN) citado no histórico de uma CAR manual."""
     if not hist:

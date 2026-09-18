@@ -18,6 +18,7 @@ Plano (exemplo):
 Uso: python3 scripts/apply_template1_cars.py --plan plano.json [--execute]
 """
 import argparse
+import datetime
 import os
 import re
 import sys
@@ -27,7 +28,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from _common import DATA_DIR, car_put_body, load_json, money  # noqa: E402
+from _common import BACKUPS_DIR, DATA_DIR, load_json, money, put_car, save_json  # noqa: E402
 from bling import BlingClient  # noqa: E402
 
 DEFAULT_TEMPLATE = (
@@ -72,8 +73,14 @@ def main():
         print("PVs não encontrados no snapshot:", missing, file=sys.stderr)
         return 1
 
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    outdir = os.path.join(BACKUPS_DIR, f"backups_template1_{ts}")
+    if args.execute:
+        os.makedirs(outdir, exist_ok=True)
+
     client = BlingClient()
     total_put = 0
+    falhas = []
     for number in numbers:
         pv = pv_by_num[number]
         descricoes = [i.get("descricao") or "" for i in pv.get("itens") or []]
@@ -102,11 +109,21 @@ def main():
                                         valor=money(total), i=i, n=n)
             print(f"  -> CAR {car['id']} ({car.get('vencimento')}) Parcelas {i}/{n}")
             if args.execute:
-                st, body = client.request("PUT", f"/contas/receber/{car['id']}", body=car_put_body(car, historico))
-                print("     PUT", st if st in (200, 204) else (st, body))
-                total_put += 1
+                save_json(os.path.join(outdir, f"car_{car['id']}.json"), car, indent=1)
+                st, body = put_car(client, car, historico)
+                ok = st in (200, 204)
+                print("     PUT", st if ok else (st, body))
+                if ok:
+                    total_put += 1
+                else:
+                    falhas.append((car["id"], st, body))
                 time.sleep(0.5)
     print("\n" + (f"aplicado em {total_put} CARs" if args.execute else "(dry-run; use --execute)"))
+    print("backups:", outdir if args.execute else "(nao gravados em dry-run)")
+    if falhas:
+        print(f"\nFALHAS ({len(falhas)}) — histórico NÃO atualizado:")
+        for cid, st, body in falhas:
+            print(f"  CAR {cid}: {st} {body}")
 
 
 if __name__ == "__main__":
